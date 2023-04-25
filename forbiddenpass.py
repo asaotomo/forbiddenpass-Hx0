@@ -5,7 +5,9 @@ import requests
 import argparse
 import sys
 import json
+import urllib3
 
+urllib3.disable_warnings()
 banner = r"""
 
 
@@ -14,8 +16,9 @@ ___________         ___.   .__    .___  .___           __________
  |    __)/  _ \_  __ \ __ \|  |/ __ |/ __ |/ __ \ /    \|     ___/\__  \  /  ___//  ___/
  |     \(  <_> )  | \/ \_\ \  / /_/ / /_/ \  ___/|   |  \    |     / __ \_\___ \ \___ \
  \___  / \____/|__|  |___  /__\____ \____ |\___  >___|  /____|    (____  /____  >____  >
-     \/                  \/        \/    \/    \/     \/               \/     \/     \/   v1.0
-by c0d3Ninja, MrPMillz
+     \/                  \/        \/    \/    \/     \/               \/     \/     \/   v1.1
+By c0d3Ninja, MrPMillz
+Modify by Hx0战队
 
 """
 
@@ -50,6 +53,7 @@ def word_list(wordlist: str) -> list:
         print(f"FileNotFoundError: {fnf_err}")
         sys.exit(1)
 
+
 wordlist = word_list("bypasses.txt")
 
 
@@ -59,7 +63,9 @@ def header_bypass(path=None):
         {'User-Agent': str(ua.chrome), 'X-Original-URL': path if path else '/'},
         {'User-Agent': str(ua.chrome), 'X-Custom-IP-Authorization': '127.0.0.1'},
         {'User-Agent': str(ua.chrome), 'X-Forwarded-For': 'http://127.0.0.1'},
+        {'User-Agent': str(ua.chrome), 'X-Forwarded-For': 'https://127.0.0.1'},
         {'User-Agent': str(ua.chrome), 'X-Forwarded-For': '127.0.0.1:80'},
+        {'User-Agent': str(ua.chrome), 'X-Forwarded-For': '127.0.0.1:443'},
         {'User-Agent': str(ua.chrome), 'X-rewrite-url': path if path else '/'}
     ]
     return headers
@@ -73,10 +79,11 @@ def do_request(url: str, stream=False, path=None):
     try:
         for header in headers:
             if stream:
-                r = requests.get(url, stream=True, headers=header)
+                r = requests.get(url, stream=True, headers=header, verify=False)
             else:
-                r = requests.get(url, headers=header)
-            print(Fore.WHITE + url + ' ' + json.dumps(list(header.items())[-1]) + Fore.GREEN + " [{}]".format(r.status_code))
+                r = requests.get(url, headers=header, verify=False)
+            print(Fore.WHITE + url + ' ' + json.dumps(list(header.items())[-1]) + Fore.GREEN + " [{}]".format(
+                r.status_code))
     except requests.exceptions.ConnectionError as ce_error:
         print("Connection Error: ", ce_error)
         pass
@@ -123,4 +130,4 @@ if __name__ == "__main__":
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(main, wordlist)
     except KeyboardInterrupt as err:
-      sys.exit(0)
+        sys.exit(0)
